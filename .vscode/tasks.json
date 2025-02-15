@@ -6,7 +6,7 @@
             "command": "D:\\software\\mingw64\\bin\\g++.exe",
             "args": [
                 "-fdiagnostics-color=always",
-                "-g",
+                "-fopenmp",
                 "${file}",
                 "-o",
                 "${fileDirname}\\${fileBasenameNoExtension}.exe"

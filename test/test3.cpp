@@ -1,59 +1,49 @@
 #include <iostream>
 #include <vector>
+#include <algorithm>
 using namespace std;
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int val):val(val),left(nullptr),right(nullptr){}
-};
-TreeNode* pre_in_topost(TreeNode *root,int pre_s_l,int pre_s_r,int in_s_l,int in_s_r,vector<int> pre_s,vector<int> in_s)
+const int N = 5;
+const int INF = 0x7fffffff;
+int graph[N][N];
+int dist[N];
+int prim(int m)
 {
-    if (pre_s_r - pre_s_l == 0) return nullptr;
-    root = new TreeNode(pre_s[pre_s_l]);
-    int i = in_s_l;
-    while (in_s[i]!=pre_s[pre_s_l]) i++;
-    // string in_s1 = in_s.substr(0,i);
-    // string in_s2 = in_s.substr(i+1,in_s.size()-i-1);
-    // string pre_s1 = pre_s.substr(1,in_s1.size());
-    // string pre_s2 = pre_s.substr(1+in_s1.size(),in_s2.size());
-    // root->left = pre_in_topost(root->left,pre_s1,in_s1);
-    // root->right = pre_in_topost(root->right,pre_s2,in_s2);
-    int in_s1_l = in_s_l,in_s1_r = i,in_s2_l = i + 1,in_s2_r = in_s_r;
-    int pre_s1_l = pre_s_l+1,pre_s1_r = pre_s1_l+i-in_s_l;
-    int pre_s2_l = pre_s1_r,pre_s2_r = pre_s_r;
-    root->left = pre_in_topost(root->left,pre_s1_l,pre_s1_r,in_s1_l,in_s1_r,pre_s,in_s);
-    root->right = pre_in_topost(root->right,pre_s2_l,pre_s2_r,in_s2_l,in_s2_r,pre_s,in_s);
-    return root;
-}
-void post_order(TreeNode *root)
-{
-    if (root == nullptr) return;
-    post_order(root->left);
-    post_order(root->right);
-    cout<<root->val<<" ";
-}
-void DeleteTree(TreeNode *root)
-{
-    if (root == nullptr) return;
-    DeleteTree(root->left);
-    DeleteTree(root->right);
-    delete root;
+    int res = 0;
+    for (int i = 1;i <= m;i++) dist[i] = INF;
+    dist[1] = 0;
+    for (int i = 2;i <= m;i++) dist[i] = graph[1][i];
+    for (int i = 2;i <= m;i++) {
+        int path = INF;
+        int index = -1;
+        for (int j = 2;j <= m;j++) {
+            if (dist[j] < path && dist[j] != 0) {
+                path = dist[j];
+                index = j;
+            }
+        }
+        if (index == -1) return res;
+        res += path;
+        //cout<<path<<endl;
+        dist[index] = 0;
+        for (int j = 2;j <= m;j++) {
+            dist[j] = min(dist[j],graph[index][j]);
+        }
+    }
+    return res;
 }
 int main()
 {
-    int n;
-    cin>>n;
-    vector<int> pre_s(n),in_s(n);
+    int n,m;
+    cin>>n>>m;
+    for (int i = 1;i <= m;i++)
+        for (int j = 1;j <= m;j++)
+            graph[i][j] = INF;
     for (int i = 0;i < n;i++) {
-        cin>>pre_s[i];
+        int u,v,w;
+        cin>>u>>v>>w;
+        graph[u][v] = w;
+        graph[v][u] = w;
     }
-    for (int i = 0;i < n;i++) {
-        cin>>in_s[i];
-    }
-    TreeNode *root = nullptr;
-    root = pre_in_topost(root,0,pre_s.size(),0,in_s.size(),pre_s,in_s);
-    post_order(root);
-    DeleteTree(root);
+    cout<<prim(m);
     return 0;
 }
